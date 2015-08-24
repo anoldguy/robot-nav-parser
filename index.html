@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
+    <style type="text/css">
+      body, p, button, .button {font-family: 'Droid Sans', sans-serif;}
+      textarea {font-family: 'Droid Sans Mono', monospace;}
+      samp {color:red;}
+    </style>
+    <script src="robot.js"></script>
+  </head>
+  <body>
+    <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <h1>EV3 Nav</h1>
+        <p class="note">
+          It's critical to download the file and not just paste the compiled output into a file. Getting the <a href="https://en.wikipedia.org/wiki/Newline">line endings</a> right is very important. The download link uses '\r' (<a href="https://en.wikipedia.org/wiki/Carriage_return">carriage return</a>) to denote newlines. If you use a file that uses Windows line endings on the EV3 you can see odd parsing behavior.
+        </p>
+        <p>About this page</p>
+        <p>ev3nav is a proof of concept parser for turning pseudo code into
+        operands that can be read by a command parser that can be built on
+        the LEGO Mindstorms EV3.</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="editor">
+          <h2>Enter your program</h2>
+          <textarea id="program" rows="14" class="col-sm-12">// You can use comments;
+// double-slash only.
+drive(30,15) // this works
+turn("left", 15, 20)
+drive(-150, 10)
+wait4time(2.7) // remove me</textarea>
+        </div>
+        <button id="read" class="btn btn-primary btn-block">Read Program</button>
+      </div>
+      <div class="col-sm-4">
+        <div class="editor" disabled>
+          <h2>Preview your opcodes</h2>
+          <textarea id="compiled" rows="14" class="col-sm-12" disabled></textarea>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <h3>Download a version to import into your EV3</h3>
+        <samp id="compiler_output"></samp>
+        <a id="dlButton" class="btn btn-success btn-block" download="program.rtf" disabled style="display:none;">Download</a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12">
+
+      </div>
+    </div>
+  </div>
+    <script>
+      var dlthis = function(){
+        var dlButton = document.getElementById("dlButton");
+        dlButton.href = "data:text/octet-stream;base64," + btoa(robot.output());
+        dlButton.style.display = "block";
+        dlButton.removeAttribute("disabled");
+      };
+
+      var resetState = function(){
+        dlButton.style.display = "none";
+        logElement.innerHTML = "";
+      }
+
+      var robot = Object.create(Robot);
+      var button = document.getElementById("read");
+      var compiled = document.getElementById("compiled");
+      var dlButton = document.getElementById("dlButton");
+      var program = document.getElementById("program");
+      var logElement = document.getElementById("compiler_output");
+
+      robot.log = function(message){
+        var logElement = document.getElementById("compiler_output")
+        logElement.innerHTML = logElement.innerHTML + message + "\n";
+      }
+
+      robot.read_program(program);
+      compiled.innerHTML = robot.output().replace(/\r/g, "\n");
+
+      dlButton.addEventListener('click', function(){return false;});
+      button.addEventListener('click', function(){
+        resetState();
+        robot.read_program(document.getElementById("program"));
+        var op = robot.output();
+        compiled.innerHTML = op.replace(/\r/g, "\n");
+        if(logElement.innerHTML == ""){
+          dlthis();
+        }
+      }, false);
+    </script>
+
+    <!-- jQuery first, then Bootstrap JS. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js"></script>
+  </body>
+</html>
