@@ -31,6 +31,8 @@ var Robot = {
       output += cmd.command + "\r";
       output += cmd.arg1 + "\r";
       output += cmd.arg2 + "\r";
+      output += cmd.arg3 ? cmd.arg3 : 0 + "\r";
+      output += cmd.arg4 ? cmd.arg4 : 0 + "\r";
     });
     output += "END\r";
     return output;
